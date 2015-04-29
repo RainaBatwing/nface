@@ -1,7 +1,7 @@
 {
-  "name": "twoface",
+  "name": "nface",
   "version": "0.9.0",
-  "homepage": "https://github.com/RainaBatwing/twoface",
+  "homepage": "https://github.com/RainaBatwing/nface",
   "description": "Designer friendly \"Character Builder\" style SVG Avatar Templates and editor UI",
   "main": "chooser.js",
   "keywords": [
@@ -9,7 +9,8 @@
     "avatar",
     "identity",
     "design",
-    "image"
+    "image",
+    "svg"
   ],
   "license": "Public Domain",
   "ignore": [
