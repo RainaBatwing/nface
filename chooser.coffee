@@ -16,65 +16,20 @@ class Events
     listener(args...) for listener in @__events[name]
     return @__events[name].length > 0
 
+Color =
+  toRGB:(cssColor)->
+    s = document.createElement('span')
+    document.body.appendChild(s)
+    s.style.backgroundColor = cssColor
+    rgb = getComputedStyle(s).backgroundColor
+    document.body.removeChild(s)
+    m = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(rgb)
+    if !m
+      m = /^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/.exec(rgb)
+    return [m[0], m[1], m[2], m[3] || 1.0]
+  equal:(left, right)->
+    Color.toRGB(left).toString() is Color.toRGB(right).toString()
 
-# Preview Twoface avatar by manipulating svg document directly
-# class TwofacePreview extends Events
-#   constructor:(@svgdom)->
-#     @sections = {}
-#     for group in @svgdom.querySelectorAll('svg > g')
-#       continue unless group.id
-#       continue unless group.id.indexOf('~') isnt -1
-#       [name, mode] = group.id.split('~', 2)
-#       options = Array.prototype.slice.call(group.childNodes)
-#                   .filter((x)-> ['g', 'path'].indexOf(x.nodeName) != -1 and "#{x.id}" != "")
-#                   .map((x)-> {name: x.id, address: "#{name}>#{x.id}", element: x, enabled: no})
-#       @sections[name] = {mode, name, options}
-#       node.element.style.visibility = "hidden" for node in options
-#
-#     @fills = []
-#     @strokes = []
-#     for node in @svgdom.querySelectorAll('svg *')
-#       continue unless node and node.style
-#       @fills.push node if node.style.fill is "#000000"
-#       @strokes.push node if node.style.stroke is "#000000"
-#
-#   color:(value)->
-#     if value?
-#       nodes.style.stroke = value for nodes in @strokes
-#       nodes.style.fill   = value for nodes in @fills
-#       @emit "change", name: "Color", address: "Color"
-#     return @strokes[0].style.stroke || @fills[0].style.fill
-#
-#   toggle:(address, value)->
-#     [sectionID, objectID] = address.split('>', 2)
-#     section = @sections[sectionID]
-#     option = section.options.filter((x)-> x.address is address)[0]
-#     if value != undefined and value != option.enabled
-#       option.enabled = !!value
-#       option.element.style.visibility = if option.enabled is on then "visible" else "hidden"
-#       @emit "change", option
-#       if option.enabled and section.mode is 'choose'
-#         for other in section.options
-#           if other != option and other.enabled
-#             other.enabled = no
-#             other.element.style.visibility = "hidden"
-#             @emit "change", other
-#     return option.enabled
-#
-#   serialize:->
-#     enabled = [@color()]
-#     for id, section of @sections
-#       for option in section.options
-#         enabled.push option.address if option.enabled
-#     return enabled.join("|")
-#
-#   load:(serialized)->
-#     enabledList = serialized.split("|")
-#     @color(enabledList.shift())
-#     for sectionID, section of @sections
-#       for option in section.options
-#         enabled = enabledList.indexOf(option.address) != -1
-#         @toggle(option.address, enabled) if option.enabled != enabled
 
 
 
@@ -199,10 +154,11 @@ class TwofaceRender
       address = "#{element.parentNode.id.split('~')[0]}>#{element.id}"
       element.parentNode.removeChild(element) unless enabledList.indexOf(address) isnt -1
 
+
     for node in instance.querySelectorAll('svg *')
       continue unless node and node.style
-      node.style.fill = color if node.style.fill is "#000000"
-      node.style.stroke = color if node.style.stroke is "#000000"
+      node.style.fill = color if Color.equal(node.style.fill, "#000000")
+      node.style.stroke = color if Color.equal(node.style.stroke, "#000000")
 
     return instance
   renderToString:(configString)->
