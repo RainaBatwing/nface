@@ -1,0 +1,3 @@
+[submodule "thistle"]
+	path = thistle
+	url = https://github.com/nornagon/thistle.git
