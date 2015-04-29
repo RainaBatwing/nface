@@ -1,6 +1,6 @@
 {
   "name": "twoface",
-  "version": "1.0.0",
+  "version": "0.9.0",
   "homepage": "https://github.com/RainaBatwing/twoface",
   "description": "Designer friendly \"Character Builder\" style SVG Avatar Templates and editor UI",
   "main": "chooser.js",
