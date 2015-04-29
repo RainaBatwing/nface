@@ -169,9 +169,12 @@
               return function(evt) {
                 return _this.emit("change");
               };
-            })(this)), jQuery('<label>').text(option.name).attr({
+            })(this)), jQuery('<label>').attr({
               'for': uuid
-            })));
+            }).append(jQuery('<img>').attr('alt', option.name).attr('src', this.render.renderToURI("lightblue|" + option.address)).attr({
+              width: 64,
+              height: 64
+            }))));
           }
           _results.push(form);
         }

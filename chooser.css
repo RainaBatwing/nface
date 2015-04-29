@@ -47,8 +47,33 @@
   background-color: lightblue;
   border-radius: 3px;
   padding: 10px;
+  position: absolute;
+  left: 0;
+  right: 0px;
+  top: 25px;
+  bottom: 0px;
+  overflow-y: scroll;
 }
 
 .TF-chooser .TF-tabs .TF-tabs-group>div.active {
   display: block;
 }
+
+/* styles for content inside forms */
+.TF-chooser .TF-tabs-group input { display: none; }
+.TF-chooser .TF-tabs-group label {
+  display: block;
+  float: left;
+  border: 2px solid transparent;
+  border-radius: 3px;
+  margin: 5px;
+}
+
+.TF-chooser .TF-tabs-group input:checked+label {
+  border-color: darkgreen;
+}
+
+.TF-chooser {
+  margin-bottom: 2em;
+}
+textarea { width: 256px; height: 4em; }

@@ -82,7 +82,13 @@ class TwofacePanels extends Events
               .attr('data-address': option.address)
               .attr('name': section.name)
               .change((evt)=> @emit("change")),
-            jQuery('<label>').text(option.name).attr('for': uuid)
+            jQuery('<label>').attr('for': uuid)
+              .append(
+                jQuery('<img>')
+                  .attr('alt', option.name)
+                  .attr('src', @render.renderToURI("lightblue|#{option.address}"))
+                  .attr(width: 64, height: 64)
+              )
           )
         )
       form
