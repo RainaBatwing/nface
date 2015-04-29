@@ -1,0 +1,54 @@
+.TF-chooser {
+  width: auto;
+  height: 256px;
+  padding: 10px;
+  position: relative;
+  background-color: slategrey;
+  border-radius: 5px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.TF-chooser > img.preview {
+  width: 256px;
+  height: 256px;
+  border-radius: 3px;
+  position: absolute;
+}
+
+.TF-chooser .TF-tabs {
+  position: absolute;
+  left: 276px;
+  right: 10px;
+  height: 256px;
+}
+
+.TF-chooser .TF-tabs>input { display: none; }
+.TF-chooser .TF-tabs>label.TF-tab {
+  /*display: block;
+  float: left;*/
+  display: inline-block;
+  background-color: blue;
+  border-radius: 3px 3px 0 0;
+  padding: 5px 10px 0 10px;
+  border-bottom: 2px solid rgba(0,0,0,0.1);
+  margin-left: 5px;
+}
+
+.TF-chooser .TF-tabs input:checked+label.TF-tab {
+  background-color: lightblue;
+  border-bottom-color: lightblue;
+}
+
+.TF-chooser .TF-tabs .TF-tabs-group>div {
+  display: none;
+  background-color: lightblue;
+  border-radius: 3px;
+  padding: 10px;
+}
+
+.TF-chooser .TF-tabs .TF-tabs-group>div.active {
+  display: block;
+}

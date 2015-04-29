@@ -1,0 +1,22 @@
+{
+  "name": "twoface",
+  "version": "1.0.0",
+  "homepage": "https://github.com/RainaBatwing/twoface",
+  "description": "Designer friendly \"Character Builder\" style SVG Avatar Templates and editor UI",
+  "main": "chooser.js",
+  "keywords": [
+    "ui",
+    "avatar",
+    "identity",
+    "design",
+    "image"
+  ],
+  "license": "Public Domain",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
