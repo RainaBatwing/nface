@@ -8,5 +8,23 @@
 </head><body>
   <textarea id="code"></textarea>
   <img width=64 height=64 id="imgTest" style="border-radius: 3px">
+
+  <script>
+  jQuery(function() {
+    // load template from server
+    jQuery.ajax("future-punk/future-punk.svg", {dataType: 'xml', success: function(xmldoc) {
+      // instanciate a twoface chooser ui with Future Punk avatar template xmldom
+      window.chooser = new TwofaceChooser(xmldoc);
+      chooser.load("#abcdef|Outfit>Seifuku|Styles>Odango|Styles>Pony Right|Styles>Pony Left|Hair>Part Center");
+      jQuery(document.body).prepend(chooser.html());
+
+      chooser.on("change", function() {
+        code = chooser.serialize();
+        jQuery('#code').val(code);
+        jQuery('#imgTest').prop('src', chooser.render.renderToURI(code));
+      });
+    }});
+  });
+  </script>
 </body>
 </html>

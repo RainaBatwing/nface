@@ -26,9 +26,12 @@ Color =
     m = /^rgb\((\d+), (\d+), (\d+)\)$/.exec(rgb)
     if !m
       m = /^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/.exec(rgb)
-    return [m[0], m[1], m[2], m[3] || 1.0]
+    return [m[1], m[2], m[3], m[4] || 1.0].map((x)->parseInt(x))
   equal:(left, right)->
     Color.toRGB(left).toString() is Color.toRGB(right).toString()
+  toHex:(input)->
+    [r,g,b] = Color.toRGB(input)
+    "#" + ([r,g,b].map((x)-> "00#{x.toString(16)}".slice(-2)).join(''))
 
 
 
@@ -54,6 +57,7 @@ class TwofacePanels extends Events
   load:(description)->
     enabledList = description.split('|')
     @color = "#" + enabledList.shift(@color).replace(/[^a-f0-9]/gi, '')
+    @colorPicker.setCSS(@color) if @colorPicker
     for address, check of @checks
       check.prop('checked', enabledList.indexOf(address) != -1)
     @emit "change"
@@ -65,12 +69,25 @@ class TwofacePanels extends Events
       tab.toggleClass 'active', tab.attr('data-section') is section
 
   # generate list of configuration form tabs
-  tabs:-> (section.name for section in @render.structure)
+  tabs:->
+    tabs = (section.name for section in @render.structure)
+    tabs.unshift("Color")
+    return tabs
   # generate forms
   forms:->
     return @_forms if @_forms
     @checks = {}
-    @_forms = for section in @render.structure
+    @_forms = []
+    # build colorpicker tab
+    colorForm = jQuery('<div class="TF-tab color-picker" data-section="Color">')
+    @colorPicker = new thistle.Picker(@color)
+    @colorPicker.on 'changed', =>
+      @color = Color.toHex(@colorPicker.getCSS())
+      @emit("change")
+    colorForm.append(@colorPicker.el)
+    @_forms.push colorForm
+    # generate remaining tabs
+    for section in @render.structure
       form = jQuery('<div class="TF-tab">').attr("data-section": section.name)
       for option in section.options
         uuid = "uuid-#{Math.random()}"
@@ -91,7 +108,8 @@ class TwofacePanels extends Events
               )
           )
         )
-      form
+      @_forms.push form
+    return @_forms
   # generate html combining tabs and forms
   html:->
     return @_panel if @_panel
@@ -176,18 +194,5 @@ class TwofaceRender
   updateObjectTag:(object, configString)->
     object.contentDocument.replaceChild(@render(configString).lastChild, object.contentDocument.lastChild)
 
-
-
-jQuery ->
-  # load template from server
-  jQuery.ajax "future-punk/future-punk.svg", dataType: 'xml', success: (xmldoc)->
-    console.log window.x = xmldoc
-    # instanciate a twoface chooser ui with Future Punk avatar template xmldom
-    window.chooser = new TwofaceChooser(xmldoc)
-    chooser.load "#abcdef|Outfit>Seifuku|Styles>Odango|Styles>Pony Right|Styles>Pony Left|Hair>Part Center"
-    jQuery(document.body).prepend chooser.html()
-
-    chooser.on "change", ->
-      code = chooser.serialize()
-      jQuery('#code').val code
-      jQuery('#imgTest').prop('src', chooser.render.renderToURI(code))
+window.TwofaceRender = TwofaceRender
+window.TwofaceChooser = TwofaceChooser

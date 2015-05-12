@@ -67,10 +67,19 @@
       if (!m) {
         m = /^rgba\((\d+), (\d+), (\d+), ([\d.]+)\)$/.exec(rgb);
       }
-      return [m[0], m[1], m[2], m[3] || 1.0];
+      return [m[1], m[2], m[3], m[4] || 1.0].map(function(x) {
+        return parseInt(x);
+      });
     },
     equal: function(left, right) {
       return Color.toRGB(left).toString() === Color.toRGB(right).toString();
+    },
+    toHex: function(input) {
+      var b, g, r, ref;
+      ref = Color.toRGB(input), r = ref[0], g = ref[1], b = ref[2];
+      return "#" + ([r, g, b].map(function(x) {
+        return ("00" + (x.toString(16))).slice(-2);
+      }).join(''));
     }
   };
 
@@ -107,6 +116,9 @@
       var address, check, enabledList, ref;
       enabledList = description.split('|');
       this.color = "#" + enabledList.shift(this.color).replace(/[^a-f0-9]/gi, '');
+      if (this.colorPicker) {
+        this.colorPicker.setCSS(this.color);
+      }
       ref = this.checks;
       for (address in ref) {
         check = ref[address];
@@ -125,61 +137,73 @@
     };
 
     TwofacePanels.prototype.tabs = function() {
-      var i, len, ref, results, section;
-      ref = this.render.structure;
-      results = [];
-      for (i = 0, len = ref.length; i < len; i++) {
-        section = ref[i];
-        results.push(section.name);
-      }
-      return results;
-    };
-
-    TwofacePanels.prototype.forms = function() {
-      var form, option, section, uuid;
-      if (this._forms) {
-        return this._forms;
-      }
-      this.checks = {};
-      return this._forms = (function() {
-        var i, j, len, len1, ref, ref1, results;
+      var section, tabs;
+      tabs = (function() {
+        var i, len, ref, results;
         ref = this.render.structure;
         results = [];
         for (i = 0, len = ref.length; i < len; i++) {
           section = ref[i];
-          form = jQuery('<div class="TF-tab">').attr({
-            "data-section": section.name
-          });
-          ref1 = section.options;
-          for (j = 0, len1 = ref1.length; j < len1; j++) {
-            option = ref1[j];
-            uuid = "uuid-" + (Math.random());
-            form.append(jQuery('<div class="TF-option">').append(this.checks[option.address] = jQuery('<input>').attr({
-              'type': {
-                choose: 'radio',
-                toggle: 'checkbox'
-              }[section.mode]
-            }).attr({
-              'id': uuid
-            }).attr({
-              'data-address': option.address
-            }).attr({
-              'name': section.name
-            }).change((function(_this) {
-              return function(evt) {
-                return _this.emit("change");
-              };
-            })(this)), jQuery('<label>').attr({
-              'for': uuid
-            }).append(jQuery('<img>').attr('alt', option.name).attr('src', this.render.renderToURI("lightblue|" + option.address)).attr({
-              width: 64,
-              height: 64
-            }))));
-          }
-          results.push(form);
+          results.push(section.name);
         }
         return results;
       }).call(this);
+      tabs.unshift("Color");
+      return tabs;
+    };
+
+    TwofacePanels.prototype.forms = function() {
+      var colorForm, form, i, j, len, len1, option, ref, ref1, section, uuid;
+      if (this._forms) {
+        return this._forms;
+      }
+      this.checks = {};
+      this._forms = [];
+      colorForm = jQuery('<div class="TF-tab color-picker" data-section="Color">');
+      this.colorPicker = new thistle.Picker(this.color);
+      this.colorPicker.on('changed', (function(_this) {
+        return function() {
+          _this.color = Color.toHex(_this.colorPicker.getCSS());
+          return _this.emit("change");
+        };
+      })(this));
+      colorForm.append(this.colorPicker.el);
+      this._forms.push(colorForm);
+      ref = this.render.structure;
+      for (i = 0, len = ref.length; i < len; i++) {
+        section = ref[i];
+        form = jQuery('<div class="TF-tab">').attr({
+          "data-section": section.name
+        });
+        ref1 = section.options;
+        for (j = 0, len1 = ref1.length; j < len1; j++) {
+          option = ref1[j];
+          uuid = "uuid-" + (Math.random());
+          form.append(jQuery('<div class="TF-option">').append(this.checks[option.address] = jQuery('<input>').attr({
+            'type': {
+              choose: 'radio',
+              toggle: 'checkbox'
+            }[section.mode]
+          }).attr({
+            'id': uuid
+          }).attr({
+            'data-address': option.address
+          }).attr({
+            'name': section.name
+          }).change((function(_this) {
+            return function(evt) {
+              return _this.emit("change");
+            };
+          })(this)), jQuery('<label>').attr({
+            'for': uuid
+          }).append(jQuery('<img>').attr('alt', option.name).attr('src', this.render.renderToURI("lightblue|" + option.address)).attr({
+            width: 64,
+            height: 64
+          }))));
+        }
+        this._forms.push(form);
+      }
+      return this._forms;
     };
 
     TwofacePanels.prototype.html = function() {
@@ -339,22 +363,8 @@
 
   })();
 
-  jQuery(function() {
-    return jQuery.ajax("future-punk/future-punk.svg", {
-      dataType: 'xml',
-      success: function(xmldoc) {
-        console.log(window.x = xmldoc);
-        window.chooser = new TwofaceChooser(xmldoc);
-        chooser.load("#abcdef|Outfit>Seifuku|Styles>Odango|Styles>Pony Right|Styles>Pony Left|Hair>Part Center");
-        jQuery(document.body).prepend(chooser.html());
-        return chooser.on("change", function() {
-          var code;
-          code = chooser.serialize();
-          jQuery('#code').val(code);
-          return jQuery('#imgTest').prop('src', chooser.render.renderToURI(code));
-        });
-      }
-    });
-  });
+  window.TwofaceRender = TwofaceRender;
+
+  window.TwofaceChooser = TwofaceChooser;
 
 }).call(this);
